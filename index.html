@@ -122,6 +122,34 @@
             z-index: 50;
         }
 
+        /* FULL SCREEN BUTTON STYLE */
+        .fs-btn {
+            position: absolute;
+            bottom: 2vh;
+            left: 3vh;
+            z-index: 100;
+            padding: 0.5vh 1.2vw;
+            background: rgba(255, 255, 0, 0.05);
+            border: 1px solid rgba(255, 255, 0, 0.4);
+            border-radius: 0.5vw;
+            color: var(--yellow);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10pt;
+            letter-spacing: 0.1vw;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5vw;
+        }
+
+        .fs-btn:hover {
+            background: rgba(255, 255, 0, 0.2);
+            border-color: var(--yellow);
+            box-shadow: 0 0 10px var(--yellow);
+        }
+
         /* EXIT BUTTON STYLE */
         .exit-btn {
             position: absolute;
@@ -194,6 +222,12 @@
 
         <!-- SIGNATURE -->
         <div class="signature neon-text-yellow">Created by Amanullah Khan</div>
+
+        <!-- FULL SCREEN BUTTON -->
+        <button class="fs-btn" onclick="toggleFullScreen()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+            Full Screen
+        </button>
 
         <!-- EXIT BUTTON -->
         <button class="exit-btn" onclick="exitQuiz()">Exit</button>
@@ -341,7 +375,21 @@
             const audio = document.getElementById(type === 'correct' ? 'audio-correct' : 'audio-wrong');
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(e => console.log("Audio play blocked: Interaction required."));
+                audio.play().catch(e => console.log("Audio play blocked."));
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         }
 
@@ -351,13 +399,9 @@
             studentData.class = document.getElementById('input-class').value;
 
             if (studentData.firstName && studentData.lastName && studentData.class) {
-                // Request Full Screen
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
-                    document.documentElement.webkitRequestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
-                    document.documentElement.msRequestFullscreen();
+                // Auto Full Screen on start as requested
+                if (!document.fullscreenElement) {
+                    toggleFullScreen();
                 }
 
                 document.getElementById('step-intro').classList.add('hidden-step');
@@ -372,7 +416,6 @@
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             }
-            // Optional: Redirect or reload
             window.location.reload();
         }
 
