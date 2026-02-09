@@ -1,0 +1,242 @@
+import React, { useState, useEffect } from 'react';
+import { Trophy, ChevronRight, User, GraduationCap, Calendar, CheckCircle, XCircle } from 'lucide-react';
+
+// --- QUESTION BANK: LEVEL B UNIT 10 VOCAB ---
+const questionBank = [
+  { id: 1, type: 'mcq', question: "If a house is described as 'dilapidated', what does it look like?", options: ["Brand new and modern", "Falling apart and in ruin", "Small and cozy", "Extremely expensive"], answer: "Falling apart and in ruin" },
+  { id: 2, type: 'tf', question: "To 'dismantle' something means to put it together piece by piece.", answer: false },
+  { id: 3, type: 'mcq', question: "The host was so _______ that he offered us his own bed and a five-course meal.", options: ["notorious", "hospitable", "morbid", "shirk"], answer: "hospitable" },
+  { id: 4, type: 'mcq', question: "Which word is a synonym for 'shirk'?", options: ["Accept", "Avoid", "Encourage", "Search"], answer: "Avoid" },
+  { id: 5, type: 'tf', question: "A 'parasite' is an organism that gives more than it takes from its host.", answer: false },
+  { id: 6, type: 'matching', question: "Match the Word to its Definition:", pairs: { "Bellow": "To roar", "Lair": "A hideout", "Farce": "A mockery" }, options: ["To roar", "A hideout", "A mockery"] },
+  { id: 7, type: 'mcq', question: "The runner was exhausted after completing the ________ marathon through the desert.", options: ["grueling", "lavish", "futile", "dilapidated"], answer: "grueling" },
+  { id: 8, type: 'mcq', question: "What is a 'beneficiary'?", options: ["Someone who gives a gift", "Someone who receives an advantage", "A person who commits a crime", "A professional athlete"], answer: "Someone who receives an advantage" },
+  { id: 9, type: 'tf', question: "If an effort is 'futile', it is successful and productive.", answer: false },
+  { id: 10, type: 'mcq', question: "The kitchen was filled with so much _______ that we couldn't even see the counters.", options: ["clutter", "surplus", "lair", "timidity"], answer: "clutter" },
+  { id: 11, type: 'mcq', question: "To 'botch' a job means to:", options: ["Do it perfectly", "Repair it", "Bungle or mess it up", "Finish it early"], answer: "Bungle or mess it up" },
+  { id: 12, type: 'tf', question: "A 'morbid' person has an unhealthy interest in unpleasant things like death.", answer: true },
+  { id: 13, type: 'matching', question: "Match the Word to its Synonym:", pairs: { "Lavish": "Extravagant", "Surplus": "Excess", "Veto": "Halt" }, options: ["Extravagant", "Excess", "Halt"] },
+  { id: 14, type: 'mcq', question: "The criminal was ________ for his high-speed chases and narrow escapes.", options: ["hospitable", "notorious", "beneficiary", "shirk"], answer: "notorious" },
+  { id: 15, type: 'mcq', question: "What does 'timidity' describe?", options: ["Extreme bravery", "Lack of courage or shyness", "Great physical strength", "The speed of a runner"], answer: "Lack of courage or shyness" },
+  { id: 16, type: 'tf', question: "To 'pamper' someone means to treat them with extreme kindness and indulgence.", answer: true },
+  { id: 17, type: 'mcq', question: "The President decided to _______ the bill because he did not agree with its terms.", options: ["veto", "botch", "dismantle", "pamper"], answer: "veto" },
+  { id: 18, type: 'mcq', question: "Which word describes a large amount left over after requirements are met?", options: ["Shortage", "Clutter", "Surplus", "Lair"], answer: "Surplus" },
+  { id: 19, type: 'tf', question: "A 'lair' is a public park where people gather.", answer: false },
+  { id: 20, type: 'matching', question: "Match the Word to its Context:", pairs: { "Dismantle": "Take apart a machine", "Shirk": "Avoid your duties", "Hospitable": "Welcome a guest" }, options: ["Take apart a machine", "Avoid your duties", "Welcome a guest"] },
+  { id: 21, type: 'mcq', question: "The play was a total _______; the actors forgot their lines and the set fell over.", options: ["farce", "clutter", "surplus", "veto"], answer: "farce" },
+  { id: 22, type: 'mcq', question: "If you 'pamper' a pet, you are:", options: ["Ignoring it", "Training it strictly", "Spoiling it with attention", "Feeding it only once a day"], answer: "Spoiling it with attention" },
+  { id: 23, type: 'tf', question: "A 'beneficiary' is the person who signs a contract first.", answer: false },
+  { id: 24, type: 'mcq', question: "It is ________ to try to stop the rain with an umbrella held upside down.", options: ["futile", "grueling", "hospitable", "notorious"], answer: "futile" },
+  { id: 25, type: 'mcq', question: "Someone who lives off others without giving anything back is a:", options: ["Host", "Parasite", "Beneficiary", "Hospitable"], answer: "Parasite" },
+];
+
+const App = () => {
+  const [step, setStep] = useState('intro');
+  const [student, setStudent] = useState({ firstName: '', lastName: '', class: '' });
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [score, setScore] = useState(0);
+  const [matchingState, setMatchingState] = useState({});
+  const [quizDate] = useState(new Date().toLocaleDateString());
+
+  const fontStyle = { fontSize: 'clamp(14pt, 2vh, 24pt)', lineHeight: '1.2' };
+  const titleStyle = { fontSize: 'clamp(24pt, 6vh, 60pt)' };
+
+  const startQuiz = () => {
+    if (student.firstName && student.lastName && student.class) setStep('quiz');
+  };
+
+  const nextQuestion = (isCorrect) => {
+    if (isCorrect) setScore(prev => prev + 1);
+    if (currentIdx < questionBank.length - 1) {
+      setCurrentIdx(currentIdx + 1);
+      setMatchingState({});
+    } else {
+      setStep('result');
+    }
+  };
+
+  const handleMCQ = (option) => {
+    nextQuestion(option === questionBank[currentIdx].answer);
+  };
+
+  const handleTF = (val) => {
+    nextQuestion(val === questionBank[currentIdx].answer);
+  };
+
+  const handleMatching = (key, value) => {
+    const newState = { ...matchingState, [key]: value };
+    setMatchingState(newState);
+    const requiredKeys = Object.keys(questionBank[currentIdx].pairs);
+    if (Object.keys(newState).length === requiredKeys.length) {
+      let allCorrect = true;
+      requiredKeys.forEach(k => {
+        if (newState[k] !== questionBank[currentIdx].pairs[k]) allCorrect = false;
+      });
+      setTimeout(() => nextQuestion(allCorrect), 500);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#050507] text-white flex items-center justify-center p-4 overflow-hidden selection:bg-cyan-500 selection:text-black">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+        body { font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0; }
+        .neon-title { font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
+        .neon-border-cyan { border: 2px solid #00ffff; box-shadow: 0 0 10px #00ffff; }
+        .neon-border-magenta { border: 2px solid #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+        .neon-border-lime { border: 2px solid #00ff00; box-shadow: 0 0 10px #00ff00; }
+        .aspect-16-9 {
+            width: 95vw;
+            max-width: 168vh;
+            aspect-ratio: 16 / 9;
+            max-height: 90vh;
+        }
+      `}</style>
+
+      <div className="aspect-16-9 flex flex-col relative overflow-hidden bg-black/60 backdrop-blur-3xl rounded-[2vw] p-[3vh] border border-white/10 shadow-2xl">
+        <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-magenta-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        {step === 'intro' && (
+          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-[4vh]">
+            <h1 className="neon-title uppercase font-black italic tracking-tighter" style={titleStyle}>
+              Level B <span className="text-magenta-500">Unit 10 Vocab</span>
+            </h1>
+            
+            <div className="w-full max-w-[30vw] space-y-[2vh]">
+              <div className="relative">
+                <User className="absolute left-[1vw] top-1/2 -translate-y-1/2 text-cyan-400 w-[1.5vw] h-[1.5vw]" />
+                <input 
+                  type="text" placeholder="First Name" 
+                  className="w-full bg-white/5 neon-border-cyan p-[1.5vh] pl-[3.5vw] rounded-xl outline-none"
+                  style={fontStyle} value={student.firstName}
+                  onChange={(e) => setStudent({...student, firstName: e.target.value})}
+                />
+              </div>
+              <div className="relative">
+                <User className="absolute left-[1vw] top-1/2 -translate-y-1/2 text-magenta-400 w-[1.5vw] h-[1.5vw]" />
+                <input 
+                  type="text" placeholder="Last Name" 
+                  className="w-full bg-white/5 neon-border-magenta p-[1.5vh] pl-[3.5vw] rounded-xl outline-none"
+                  style={fontStyle} value={student.lastName}
+                  onChange={(e) => setStudent({...student, lastName: e.target.value})}
+                />
+              </div>
+              <div className="relative">
+                <GraduationCap className="absolute left-[1vw] top-1/2 -translate-y-1/2 text-lime-400 w-[1.5vw] h-[1.5vw]" />
+                <input 
+                  type="text" placeholder="Class / Section" 
+                  className="w-full bg-white/5 neon-border-lime p-[1.5vh] pl-[3.5vw] rounded-xl outline-none"
+                  style={fontStyle} value={student.class}
+                  onChange={(e) => setStudent({...student, class: e.target.value})}
+                />
+              </div>
+
+              <button 
+                onClick={startQuiz}
+                className="w-full bg-cyan-500 text-black py-[2vh] rounded-xl font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-105 transition-transform"
+                style={fontStyle}
+              >
+                Initialize <ChevronRight size={32} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 'quiz' && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center mb-[2vh]">
+              <div className="neon-border-cyan px-[2vw] py-[0.5vh] rounded-full text-cyan-400 font-bold" style={{ fontSize: '1.2vw' }}>
+                LOG: {currentIdx + 1} / {questionBank.length}
+              </div>
+              <div className="text-white/40 uppercase tracking-widest" style={{ fontSize: '1vw' }}>
+                Mode: Vocab Assessment
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center items-center px-[4vw]">
+              <h2 className="font-bold mb-[4vh] text-center text-white leading-tight w-full" style={{ fontSize: 'clamp(18pt, 4vh, 32pt)' }}>
+                {questionBank[currentIdx].question}
+              </h2>
+
+              <div className="grid grid-cols-1 gap-[1.5vh] w-full max-w-[40vw]">
+                {questionBank[currentIdx].type === 'mcq' && questionBank[currentIdx].options.map((opt, i) => (
+                  <button key={i} onClick={() => handleMCQ(opt)}
+                    className="w-full text-left p-[2vh] bg-white/5 border border-white/10 rounded-xl hover:bg-cyan-500/20 hover:border-cyan-500 transition-all"
+                    style={fontStyle}>{opt}</button>
+                ))}
+
+                {questionBank[currentIdx].type === 'tf' && (
+                  <div className="flex gap-[2vw] w-full">
+                    <button onClick={() => handleTF(true)} className="flex-1 py-[4vh] neon-border-lime text-lime-400 font-bold rounded-2xl hover:bg-lime-500/20" style={fontStyle}>TRUE</button>
+                    <button onClick={() => handleTF(false)} className="flex-1 py-[4vh] neon-border-magenta text-magenta-400 font-bold rounded-2xl hover:bg-magenta-500/20" style={fontStyle}>FALSE</button>
+                  </div>
+                )}
+
+                {questionBank[currentIdx].type === 'matching' && (
+                  <div className="space-y-[1.5vh] w-full">
+                    {Object.keys(questionBank[currentIdx].pairs).map((key) => (
+                      <div key={key} className="flex items-center gap-[1vw]">
+                        <div className="flex-1 p-[1vh] bg-white/10 rounded-lg text-center border border-white/10" style={fontStyle}>{key}</div>
+                        <select className="flex-1 p-[1vh] bg-black neon-border-magenta rounded-lg outline-none text-center"
+                          style={fontStyle} value={matchingState[key] || ''} onChange={(e) => handleMatching(key, e.target.value)}>
+                          <option value="">Select...</option>
+                          {questionBank[currentIdx].options.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 'result' && (
+          <div className="flex-1 flex flex-col h-full">
+            <h1 className="neon-title text-center uppercase tracking-widest mb-[4vh]" style={{ fontSize: '3vw', color: '#0ff' }}>
+              Level B Unit 10 Vocab
+            </h1>
+
+            <div className="grid grid-cols-2 gap-[2vw] mb-[4vh]">
+              <div className="bg-white/5 p-[2vh] rounded-2xl border border-white/10 flex flex-col justify-center items-center">
+                <div className="text-white/40 uppercase text-[0.8vw]">Student Operator</div>
+                <div className="font-bold text-cyan-400" style={fontStyle}>{student.firstName} {student.lastName}</div>
+              </div>
+              <div className="bg-white/5 p-[2vh] rounded-2xl border border-white/10 flex flex-col justify-center items-center">
+                <div className="text-white/40 uppercase text-[0.8vw]">Division</div>
+                <div className="font-bold text-magenta-400" style={fontStyle}>Class {student.class}</div>
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center bg-black/40 rounded-3xl border border-white/5 p-[2vh] space-y-[2vh]">
+              <div className="flex items-center gap-[2vw]">
+                <Trophy className="text-lime-400 w-[5vw] h-[5vw]" />
+                <div className="text-center">
+                  <div className="font-black text-white" style={{ fontSize: '5vw' }}>{Math.round((score/25)*100)}%</div>
+                  <div className="text-lime-400 font-bold" style={fontStyle}>{score} / 25 Correct</div>
+                </div>
+              </div>
+
+              <div className="w-[60%] h-[2.5vh] bg-white/10 rounded-full border border-white/20 overflow-hidden relative">
+                <div className="h-full rounded-full transition-all duration-1000"
+                  style={{ width: `${(score/25)*100}%`, background: 'linear-gradient(90deg, #0ff, #0f0, #f0f)' }} />
+              </div>
+            </div>
+
+            <div className="mt-[2vh] flex justify-between items-end">
+              <div className="flex items-center gap-2 text-cyan-400/60" style={{ fontSize: '1.2vw' }}>
+                <Calendar size={24} /> {quizDate}
+              </div>
+              <button onClick={() => window.location.reload()}
+                className="neon-border-magenta px-[2vw] py-[1vh] rounded-lg text-magenta-400 font-bold hover:bg-magenta-500 hover:text-black transition-all"
+                style={{ fontSize: '1.2vw' }}>SYSTEM RESTART</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default App;
