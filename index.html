@@ -121,6 +121,43 @@
             text-transform: uppercase;
             z-index: 50;
         }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5vh;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan);
+        }
+
+        .nav-arrow.disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-left { left: 2vh; }
+        .nav-right { right: 2vh; }
+
+        .option-selected {
+            background: rgba(0, 255, 255, 0.3) !important;
+            border-color: var(--cyan) !important;
+            box-shadow: 0 0 15px var(--cyan) !important;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +168,14 @@
 
         <!-- SIGNATURE -->
         <div class="signature neon-text-yellow">Created by Amanullah Khan</div>
+
+        <!-- NAVIGATION ARROWS (Hidden initially) -->
+        <button id="nav-back" class="nav-arrow nav-left hidden-step" onclick="goBack()">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button id="nav-next" class="nav-arrow nav-right hidden-step" onclick="goNext()">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
 
         <!-- INTRO STEP -->
         <div id="step-intro" class="flex-1 flex flex-col items-center justify-center text-center space-y-[4vh]">
@@ -225,6 +270,10 @@
         </div>
     </div>
 
+    <!-- AUDIO FILES -->
+    <audio id="audio-correct" src="correct.mp3" preload="auto"></audio>
+    <audio id="audio-wrong" src="wrong.mp3" preload="auto"></audio>
+
     <script>
         const questionBank = [
             { type: 'mcq', question: "If a house is described as 'dilapidated', what does it look like?", options: ["Brand new and modern", "Falling apart and in ruin", "Small and cozy", "Extremely expensive"], answer: "Falling apart and in ruin" },
@@ -255,9 +304,20 @@
         ];
 
         let currentIdx = 0;
-        let score = 0;
         let studentData = { firstName: '', lastName: '', class: '' };
         let matchingState = {};
+        
+        // Track correctness and selected value per question
+        // userResults stores: { isCorrect: boolean, selectedValue: string/object }
+        let userResults = new Array(questionBank.length).fill(null);
+
+        function playSound(type) {
+            const audio = document.getElementById(type === 'correct' ? 'audio-correct' : 'audio-wrong');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio play failed: ", e));
+            }
+        }
 
         function startQuiz() {
             studentData.firstName = document.getElementById('input-firstName').value;
@@ -267,6 +327,8 @@
             if (studentData.firstName && studentData.lastName && studentData.class) {
                 document.getElementById('step-intro').classList.add('hidden-step');
                 document.getElementById('step-quiz').classList.remove('hidden-step');
+                document.getElementById('nav-back').classList.remove('hidden-step');
+                document.getElementById('nav-next').classList.remove('hidden-step');
                 renderQuestion();
             }
         }
@@ -278,9 +340,17 @@
             const container = document.getElementById('options-container');
             container.innerHTML = '';
 
+            // Update arrow states
+            document.getElementById('nav-back').classList.toggle('disabled', currentIdx === 0);
+            
+            const prevResult = userResults[currentIdx];
+
             if (q.type === 'mcq') {
                 q.options.forEach(opt => {
                     const btn = createBtn(opt, () => handleMCQ(opt));
+                    if (prevResult && prevResult.selectedValue === opt) {
+                        btn.classList.add('option-selected');
+                    }
                     container.appendChild(btn);
                 });
             } else if (q.type === 'tf') {
@@ -288,13 +358,19 @@
                 grid.className = 'flex gap-[2vw] w-full';
                 const tBtn = createBtn('TRUE', () => handleTF(true), 'neon-border-lime text-[#00ff00] py-[4vh] flex-1');
                 const fBtn = createBtn('FALSE', () => handleTF(false), 'neon-border-magenta text-[#ff00ff] py-[4vh] flex-1');
+                
+                if (prevResult) {
+                    if (prevResult.selectedValue === "True") tBtn.classList.add('option-selected');
+                    if (prevResult.selectedValue === "False") fBtn.classList.add('option-selected');
+                }
+
                 grid.appendChild(tBtn);
                 grid.appendChild(fBtn);
                 container.appendChild(grid);
             } else if (q.type === 'matching') {
                 const innerContainer = document.createElement('div');
                 innerContainer.className = 'space-y-[1.5vh] w-full';
-                matchingState = {};
+                matchingState = prevResult ? { ...prevResult.selectedValue } : {};
                 
                 Object.keys(q.pairs).forEach(key => {
                     const row = document.createElement('div');
@@ -311,6 +387,7 @@
                         const optEl = document.createElement('option');
                         optEl.value = o;
                         optEl.innerText = o;
+                        if (matchingState[key] === o) optEl.selected = true;
                         sel.appendChild(optEl);
                     });
                     
@@ -319,7 +396,10 @@
                         if (Object.keys(matchingState).length === Object.keys(q.pairs).length) {
                             let correct = true;
                             Object.keys(q.pairs).forEach(k => { if(matchingState[k] !== q.pairs[k]) correct = false; });
-                            setTimeout(() => nextStep(correct), 500);
+                            
+                            userResults[currentIdx] = { isCorrect: correct, selectedValue: { ...matchingState } };
+                            playSound(correct ? 'correct' : 'wrong');
+                            setTimeout(() => goNext(), 500);
                         }
                     };
 
@@ -339,32 +419,54 @@
             return btn;
         }
 
-        function handleMCQ(val) { nextStep(val === questionBank[currentIdx].answer); }
-        function handleTF(val) { 
-            const ansStr = val ? "True" : "False";
-            nextStep(ansStr === questionBank[currentIdx].answer); 
+        function handleMCQ(val) { 
+            const isCorrect = val === questionBank[currentIdx].answer;
+            userResults[currentIdx] = { isCorrect, selectedValue: val };
+            playSound(isCorrect ? 'correct' : 'wrong');
+            setTimeout(() => goNext(), 300); 
         }
 
-        function nextStep(isCorrect) {
-            if (isCorrect) score++;
+        function handleTF(val) { 
+            const ansStr = val ? "True" : "False";
+            const isCorrect = ansStr === questionBank[currentIdx].answer;
+            userResults[currentIdx] = { isCorrect, selectedValue: ansStr };
+            playSound(isCorrect ? 'correct' : 'wrong');
+            setTimeout(() => goNext(), 300); 
+        }
+
+        function goBack() {
+            if (currentIdx > 0) {
+                currentIdx--;
+                renderQuestion();
+            }
+        }
+
+        function goNext() {
             if (currentIdx < questionBank.length - 1) {
                 currentIdx++;
                 renderQuestion();
             } else {
+                // If on last question, check if all are answered before showing result
+                // Or just show results. I'll show results.
                 showResult();
             }
         }
 
         function showResult() {
             document.getElementById('step-quiz').classList.add('hidden-step');
+            document.getElementById('nav-back').classList.add('hidden-step');
+            document.getElementById('nav-next').classList.add('hidden-step');
             document.getElementById('step-result').classList.remove('hidden-step');
             
             document.getElementById('res-name').innerText = `${studentData.firstName} ${studentData.lastName}`;
             document.getElementById('res-class').innerText = `Class ${studentData.class}`;
             
-            const percent = Math.round((score / 25) * 100);
+            // Calculate final score
+            const finalScore = userResults.reduce((acc, res) => acc + (res && res.isCorrect ? 1 : 0), 0);
+            const percent = Math.round((finalScore / 25) * 100);
+            
             document.getElementById('res-percent').innerText = `${percent}%`;
-            document.getElementById('res-score').innerText = `${score} / 25 Correct`;
+            document.getElementById('res-score').innerText = `${finalScore} / 25 Correct`;
             document.getElementById('res-date').innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> ${new Date().toLocaleDateString()}`;
             
             document.getElementById('score-bar').style.width = `${percent}%`;
