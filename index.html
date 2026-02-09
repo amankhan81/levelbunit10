@@ -101,9 +101,9 @@ const App = () => {
         <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-magenta-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-        {/* Global Footer Signature - Decreased to 10pt */}
+        {/* Global Footer Signature - Centered horizontally at the bottom */}
         <div 
-          className="absolute bottom-[2vh] right-[3vh] uppercase tracking-[0.1vw] font-black z-50 pointer-events-none neon-text-yellow" 
+          className="absolute bottom-[2vh] left-1/2 -translate-x-1/2 uppercase tracking-[0.1vw] font-black z-50 pointer-events-none neon-text-yellow whitespace-nowrap" 
           style={{ fontSize: '10pt' }}
         >
           Created by Amanullah Khan
@@ -237,7 +237,7 @@ const App = () => {
             </div>
 
             <div className="mt-[2vh] flex justify-between items-end pb-[2vh]">
-              <div className="flex items-center gap-2 text-cyan-400/60" style={{ fontSize: '1.2vw' }}>
+              <div className="flex items-center gap-2 text-cyan-400/60" style={{ fontSize: '12pt' }}>
                 <Calendar size={24} /> {quizDate}
               </div>
               <button onClick={() => window.location.reload()}
