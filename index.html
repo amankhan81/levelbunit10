@@ -122,7 +122,6 @@
             z-index: 50;
         }
 
-        /* FULL SCREEN BUTTON STYLE */
         .fs-btn {
             position: absolute;
             bottom: 2vh;
@@ -150,7 +149,6 @@
             box-shadow: 0 0 10px var(--yellow);
         }
 
-        /* EXIT BUTTON STYLE */
         .exit-btn {
             position: absolute;
             bottom: 2vh;
@@ -212,6 +210,16 @@
             border-color: var(--cyan) !important;
             box-shadow: 0 0 15px var(--cyan) !important;
         }
+
+        .trophy-glow {
+            filter: drop-shadow(0 0 15px var(--yellow));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
     </style>
 </head>
 <body>
@@ -232,7 +240,7 @@
         <!-- EXIT BUTTON -->
         <button class="exit-btn" onclick="exitQuiz()">Exit</button>
 
-        <!-- NAVIGATION ARROWS (Hidden initially) -->
+        <!-- NAVIGATION ARROWS -->
         <button id="nav-back" class="nav-arrow nav-left hidden-step" onclick="goBack()">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </button>
@@ -284,18 +292,25 @@
                 </h2>
 
                 <div id="options-container" class="grid grid-cols-1 gap-[1.5vh] w-full max-w-[40vw]">
-                    <!-- Options injected here -->
                 </div>
             </div>
         </div>
 
         <!-- RESULT STEP -->
         <div id="step-result" class="flex-1 flex flex-col h-full hidden-step">
-            <h1 class="neon-title text-center uppercase tracking-widest mb-[4vh]" style="font-size: 3vw; color: var(--cyan);">
+            <h1 class="neon-title text-center uppercase tracking-widest mb-[2vh]" style="font-size: 2.5vw; color: var(--cyan);">
                 Level B Unit 10 Vocab
             </h1>
 
-            <div class="grid grid-cols-2 gap-[2vw] mb-[4vh]">
+            <!-- TROPHY / MERIT SECTION -->
+            <div id="merit-badge" class="flex flex-col items-center mb-[2vh] hidden-step">
+                <svg class="w-[6vh] h-[6vh] text-yellow-400 trophy-glow" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M7 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2a4 4 0 0 1-4 4v2.5a.5.5 0 0 0 1 0V9a1 1 0 0 1 2 0v1.5a2.5 2.5 0 0 1-5 0V9a1 1 0 0 1 2 0v1.5a.5.5 0 0 0 1 0V8a4 4 0 0 1-4-4V2zM4 3h1v3a4.011 4.011 0 0 0 1.242 2.858A3.501 3.501 0 0 1 4 6V3zm15 0h1v3a3.501 3.501 0 0 1-2.242 3.258A4.011 4.011 0 0 0 19 6V3zM6 19h12v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-1zm1-2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1H7v-1z"/>
+                </svg>
+                <div class="neon-text-yellow font-black uppercase tracking-[0.5vw] mt-2" style="font-size: 1.5vw;">Exquisite Work</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-[2vw] mb-[3vh]">
                 <div class="bg-white/5 p-[2vh] rounded-2xl border border-white/10 flex flex-col justify-center items-center">
                     <div class="text-white/40 uppercase text-[0.8vw]">Student Operator</div>
                     <div class="font-bold text-[#00ffff] vocab-font" id="res-name">NAME</div>
@@ -308,7 +323,6 @@
 
             <div class="flex-1 flex flex-col items-center justify-center bg-black/40 rounded-3xl border border-white/5 p-[2vh] space-y-[2vh]">
                 <div class="flex items-center gap-[2vw]">
-                    <svg class="text-[#00ff00] w-[5vw] h-[5vw]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd"/></svg>
                     <div class="text-center">
                         <div class="font-black text-white" style="font-size: 5vw;" id="res-percent">0%</div>
                         <div class="text-[#00ff00] font-bold vocab-font" id="res-score">0 / 25 Correct</div>
@@ -323,7 +337,6 @@
 
             <div class="mt-[2vh] flex justify-between items-end pb-[2vh]">
                 <div id="res-date" class="flex items-center gap-2 text-[#00ffff]/60 date-font">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     DATE
                 </div>
                 <button onclick="window.location.reload()"
@@ -333,7 +346,6 @@
         </div>
     </div>
 
-    <!-- AUDIO FILES -->
     <audio id="audio-correct" src="correct.mp3" preload="auto"></audio>
     <audio id="audio-wrong" src="wrong.mp3" preload="auto"></audio>
 
@@ -368,28 +380,18 @@
 
         let currentIdx = 0;
         let studentData = { firstName: '', lastName: '', class: '' };
-        let matchingState = {};
         let userResults = new Array(questionBank.length).fill(null);
 
         function playSound(type) {
             const audio = document.getElementById(type === 'correct' ? 'audio-correct' : 'audio-wrong');
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play().catch(e => console.log("Audio play blocked."));
-            }
+            if (audio) { audio.currentTime = 0; audio.play().catch(e => {}); }
         }
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                }
+                document.documentElement.requestFullscreen?.() || document.documentElement.webkitRequestFullscreen?.();
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                document.exitFullscreen?.();
             }
         }
 
@@ -397,13 +399,8 @@
             studentData.firstName = document.getElementById('input-firstName').value;
             studentData.lastName = document.getElementById('input-lastName').value;
             studentData.class = document.getElementById('input-class').value;
-
             if (studentData.firstName && studentData.lastName && studentData.class) {
-                // Auto Full Screen on start as requested
-                if (!document.fullscreenElement) {
-                    toggleFullScreen();
-                }
-
+                if (!document.fullscreenElement) toggleFullScreen();
                 document.getElementById('step-intro').classList.add('hidden-step');
                 document.getElementById('step-quiz').classList.remove('hidden-step');
                 document.getElementById('nav-back').classList.remove('hidden-step');
@@ -413,9 +410,7 @@
         }
 
         function exitQuiz() {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
+            if (document.fullscreenElement) document.exitFullscreen();
             window.location.reload();
         }
 
@@ -425,85 +420,82 @@
             document.getElementById('question-text').innerText = q.question;
             const container = document.getElementById('options-container');
             container.innerHTML = '';
-
             document.getElementById('nav-back').classList.toggle('disabled', currentIdx === 0);
-            const prevResult = userResults[currentIdx];
+            const prev = userResults[currentIdx];
 
             if (q.type === 'mcq') {
                 q.options.forEach(opt => {
                     const btn = createBtn(opt, () => handleMCQ(opt));
-                    if (prevResult && prevResult.selectedValue === opt) btn.classList.add('option-selected');
+                    if (prev && prev.selectedValue === opt) btn.classList.add('option-selected');
                     container.appendChild(btn);
                 });
             } else if (q.type === 'tf') {
                 const grid = document.createElement('div');
                 grid.className = 'flex gap-[2vw] w-full';
-                const tBtn = createBtn('TRUE', () => handleTF(true), 'neon-border-lime text-[#00ff00] py-[4vh] flex-1');
-                const fBtn = createBtn('FALSE', () => handleTF(false), 'neon-border-magenta text-[#ff00ff] py-[4vh] flex-1');
-                if (prevResult) {
-                    if (prevResult.selectedValue === "True") tBtn.classList.add('option-selected');
-                    if (prevResult.selectedValue === "False") fBtn.classList.add('option-selected');
+                const t = createBtn('TRUE', () => handleTF(true), 'neon-border-lime text-[#00ff00] py-[4vh] flex-1');
+                const f = createBtn('FALSE', () => handleTF(false), 'neon-border-magenta text-[#ff00ff] py-[4vh] flex-1');
+                if (prev) {
+                    if (prev.selectedValue === "True") t.classList.add('option-selected');
+                    if (prev.selectedValue === "False") f.classList.add('option-selected');
                 }
-                grid.appendChild(tBtn);
-                grid.appendChild(fBtn);
+                grid.append(t, f);
                 container.appendChild(grid);
             } else if (q.type === 'matching') {
-                const innerContainer = document.createElement('div');
-                innerContainer.className = 'space-y-[1.5vh] w-full';
-                matchingState = prevResult ? { ...prevResult.selectedValue } : {};
+                const inner = document.createElement('div');
+                inner.className = 'space-y-[1.5vh] w-full';
+                const state = prev ? { ...prev.selectedValue } : {};
                 Object.keys(q.pairs).forEach(key => {
                     const row = document.createElement('div');
                     row.className = 'flex items-center gap-[1vw]';
-                    const left = document.createElement('div');
-                    left.className = 'flex-1 p-[1vh] bg-white/10 rounded-lg text-center border border-white/10 vocab-font';
-                    left.innerText = key;
-                    const sel = document.createElement('select');
-                    sel.className = 'flex-1 p-[1vh] bg-black neon-border-magenta rounded-lg outline-none text-center vocab-font';
-                    sel.innerHTML = '<option value="">Select...</option>';
+                    const l = document.createElement('div');
+                    l.className = 'flex-1 p-[1vh] bg-white/10 rounded-lg text-center border border-white/10 vocab-font';
+                    l.innerText = key;
+                    const s = document.createElement('select');
+                    s.className = 'flex-1 p-[1vh] bg-black neon-border-magenta rounded-lg outline-none text-center vocab-font';
+                    s.innerHTML = '<option value="">Select...</option>';
                     q.options.forEach(o => {
-                        const optEl = document.createElement('option');
-                        optEl.value = o; optEl.innerText = o;
-                        if (matchingState[key] === o) optEl.selected = true;
-                        sel.appendChild(optEl);
+                        const op = document.createElement('option');
+                        op.value = o; op.innerText = o;
+                        if (state[key] === o) op.selected = true;
+                        s.appendChild(op);
                     });
-                    sel.onchange = (e) => {
-                        matchingState[key] = e.target.value;
-                        if (Object.keys(matchingState).length === Object.keys(q.pairs).length) {
-                            let correct = true;
-                            Object.keys(q.pairs).forEach(k => { if(matchingState[k] !== q.pairs[k]) correct = false; });
-                            userResults[currentIdx] = { isCorrect: correct, selectedValue: { ...matchingState } };
-                            playSound(correct ? 'correct' : 'wrong');
+                    s.onchange = (e) => {
+                        state[key] = e.target.value;
+                        if (Object.keys(state).length === Object.keys(q.pairs).length) {
+                            let ok = true;
+                            Object.keys(q.pairs).forEach(k => { if(state[k] !== q.pairs[k]) ok = false; });
+                            userResults[currentIdx] = { isCorrect: ok, selectedValue: { ...state } };
+                            playSound(ok ? 'correct' : 'wrong');
                             setTimeout(() => goNext(), 500);
                         }
                     };
-                    row.appendChild(left);
-                    row.appendChild(sel);
-                    innerContainer.appendChild(row);
+                    row.append(l, s);
+                    inner.appendChild(row);
                 });
-                container.appendChild(innerContainer);
+                container.appendChild(inner);
             }
         }
 
-        function createBtn(text, onClick, customClass = '') {
-            const btn = document.createElement('button');
-            btn.className = customClass || 'w-full text-left p-[2vh] bg-white/5 border border-white/10 rounded-xl hover:bg-[#00ffff]/20 hover:border-[#00ffff] transition-all btn-hover vocab-font';
-            btn.innerText = text;
-            btn.onclick = onClick;
-            return btn;
+        function createBtn(text, onClick, cl = '') {
+            const b = document.createElement('button');
+            b.className = cl || 'w-full text-left p-[2vh] bg-white/5 border border-white/10 rounded-xl hover:bg-[#00ffff]/20 hover:border-[#00ffff] transition-all btn-hover vocab-font';
+            b.innerText = text;
+            b.onclick = onClick;
+            return b;
         }
 
-        function handleMCQ(val) { 
-            const isCorrect = val === questionBank[currentIdx].answer;
-            userResults[currentIdx] = { isCorrect, selectedValue: val };
-            playSound(isCorrect ? 'correct' : 'wrong');
+        function handleMCQ(v) { 
+            const ok = v === questionBank[currentIdx].answer;
+            userResults[currentIdx] = { isCorrect: ok, selectedValue: v };
+            playSound(ok ? 'correct' : 'wrong');
             setTimeout(() => goNext(), 300); 
         }
 
-        function handleTF(val) { 
-            const ansStr = val ? "True" : "False";
-            const isCorrect = ansStr === questionBank[currentIdx].answer;
-            userResults[currentIdx] = { isCorrect, selectedValue: ansStr };
-            playSound(isCorrect ? 'correct' : 'wrong');
+        function handleTF(v) { 
+            const str = v ? "True" : "False";
+            const ok = str === questionBank[currentIdx].answer;
+            userResults[currentIdx] = { isCorrect: ok, selectedValue: str };
+            playSound(ok ? 'correct' : 'wrong');
             setTimeout(() => goNext(), 300); 
         }
 
@@ -514,15 +506,27 @@
             document.getElementById('step-quiz').classList.add('hidden-step');
             document.getElementById('nav-back').classList.add('hidden-step');
             document.getElementById('nav-next').classList.add('hidden-step');
-            document.getElementById('step-result').classList.remove('hidden-step');
+            const stepRes = document.getElementById('step-result');
+            stepRes.classList.remove('hidden-step');
+            
             document.getElementById('res-name').innerText = `${studentData.firstName} ${studentData.lastName}`;
             document.getElementById('res-class').innerText = `Class ${studentData.class}`;
-            const finalScore = userResults.reduce((acc, res) => acc + (res && res.isCorrect ? 1 : 0), 0);
+            
+            const finalScore = userResults.reduce((acc, res) => acc + (res?.isCorrect ? 1 : 0), 0);
             const percent = Math.round((finalScore / 25) * 100);
+            
             document.getElementById('res-percent').innerText = `${percent}%`;
             document.getElementById('res-score').innerText = `${finalScore} / 25 Correct`;
-            document.getElementById('res-date').innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> ${new Date().toLocaleDateString()}`;
+            document.getElementById('res-date').innerHTML = `<svg class="w-6 h-6 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> ${new Date().toLocaleDateString()}`;
             document.getElementById('score-bar').style.width = `${percent}%`;
+
+            // EXQUISITE WORK LOGIC
+            const merit = document.getElementById('merit-badge');
+            if (percent >= 90) {
+                merit.classList.remove('hidden-step');
+            } else {
+                merit.classList.add('hidden-step');
+            }
         }
     </script>
 </body>
